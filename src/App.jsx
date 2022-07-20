@@ -1,34 +1,78 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
 import './App.css'
+// import { Button } from '@mantine/core';
+// import { Menu, Divider, Text } from '@mantine/core';
+import ReactDOMServer from 'react-dom/server'
+import { LogoIcon } from './assets/logo.jsx';
+import { Copy, Settings, Grid, Clock } from 'react-feather';
+import { SelectedColorSquare } from './components/SelectedColorSquare.jsx';
 
-function App() {
-  const [count, setCount] = useState(0)
+setIcon()
 
-  return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/public/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </div>
-  )
+function setIcon (color) {
+    let string = ReactDOMServer.renderToStaticMarkup(<LogoIcon color={color}/>)
+    console.log(string)
+
+    let imageUrl = URL.createObjectURL(
+        new Blob([string], { type: 'image/svg+xml;charset=utf-8' })
+    )
+
+    let image = new Image()
+    image.src = imageUrl
+    image.onload = function () {
+        const canvas = new OffscreenCanvas(48, 48)
+        const context = canvas.getContext('2d')
+        context.clearRect(0, 0, 48, 48)
+        context.drawImage(this, 0, 0)
+        URL.revokeObjectURL(imageUrl)
+
+        chrome.action.setIcon({ imageData: context.getImageData(0, 0, 48, 48) })
+    }
 }
 
-export default App
+export function App () {
+    const [color, setColor] = useState(null)
+
+    async function openColorPicker () {
+        if (!window.EyeDropper) {
+            console.log(`Browser don't support Eyedropper, please update your browser`)
+            return
+        }
+        let eyeDropper = new EyeDropper()
+        let colorResult = await eyeDropper.open()
+        setColor(colorResult.sRGBHex)
+        setIcon(colorResult.sRGBHex)
+    }
+
+    return (
+        <div className="menu">
+            <ul className="menu-list">
+                <li className="menu-item">
+                    <button className="menu-button" onClick={openColorPicker}>
+                        <SelectedColorSquare color={color}/>
+                        Pick a color { color ? `(${color})` : ''}
+                    </button>
+                </li>
+                <li className="menu-item">
+                    <button className="menu-button" onClick={() => window.location = 'picker.html'}>
+                        <Grid />
+                        Color picker
+                    </button>
+                </li>
+            </ul>
+            <ul className="menu-list">
+                <li className="menu-item">
+                    <button className="menu-button menu-button--black"><Copy/>Copy to clipboard</button>
+                </li>
+                <li className="menu-item">
+                    <button className="menu-button"><Clock/>History</button>
+                </li>
+            </ul>
+            <ul className="menu-list">
+                <li className="menu-item">
+                    <button className="menu-button"><Settings/>Options</button>
+                </li>
+            </ul>
+        </div>
+    )
+}
