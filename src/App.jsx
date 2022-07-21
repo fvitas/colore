@@ -34,10 +34,6 @@ export function App () {
     const [color, setColor] = useState(null)
 
     async function openColorPicker () {
-        if (!window.EyeDropper) {
-            console.log(`Browser don't support Eyedropper, please update your browser`)
-            return
-        }
         let eyeDropper = new EyeDropper()
         let colorResult = await eyeDropper.open()
         setColor(colorResult.sRGBHex)
@@ -54,15 +50,14 @@ export function App () {
                     </button>
                 </li>
                 <li className="menu-item">
-                    <button className="menu-button" onClick={() => window.location = 'picker.html'}>
-                        <Grid />
-                        Color picker
-                    </button>
+                    <button className="menu-button"><Copy/>Copy to clipboard</button>
                 </li>
             </ul>
             <ul className="menu-list">
                 <li className="menu-item">
-                    <button className="menu-button menu-button--black"><Copy/>Copy to clipboard</button>
+                    <button className="menu-button" onClick={() => window.location = 'picker.html'}>
+                        <Grid/>Color picker
+                    </button>
                 </li>
                 <li className="menu-item">
                     <button className="menu-button"><Clock/>History</button>

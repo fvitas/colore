@@ -4,6 +4,15 @@
   "version": "0.0.0",
   "action": {
     "default_popup": "index.html",
-    "default_icon": "logo.svg"
-  }
+    "default_icon": "icon48.png"
+  },
+  "description": "A plain text description",
+  "icons": {
+    "16": "icon16.png",
+    "32": "icon32.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "author": "Filip Vitas",
+  "minimum_chrome_version": "95"
 }
